@@ -12,7 +12,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
-    <sonar.projectKey>demo:java-security</sonar.projectKey>
+    <sonar.organization>iainblack-sonar</sonar.organization>
     <sonar.projectName>Java Web App</sonar.projectName>
   </properties>
   <dependencies>
