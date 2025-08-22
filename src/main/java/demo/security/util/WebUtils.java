@@ -33,4 +33,40 @@ public class WebUtils {
             }
         }
     }
+
+    public void setInsecureCookie(HttpServletResponse response, String name, String value) {
+        // Vulnerable: Cookie without security attributes
+        Cookie cookie = new Cookie(name, value);
+        cookie.setMaxAge(36000);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+    }
+
+    public void fetchExternalResource(String url) {
+        try {
+            // Vulnerable: SSRF - No URL validation
+            java.net.URL target = new java.net.URL(url);
+            java.net.URLConnection conn = target.openConnection();
+
+            // Vulnerable: No timeout set
+            java.io.BufferedReader reader = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(conn.getInputStream())
+            );
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Process the line
+                System.out.println(line);
+            }
+        } catch (Exception e) {
+            // Vulnerable: Swallowing exception
+        }
+    }
+
+    private static final String DEFAULT_PASSWORD = "admin123"; // Vulnerable: Hardcoded credential
+
+    public boolean authenticateUser(String username, String password) {
+        // Vulnerable: Constant time comparison not used
+        return password.equals(DEFAULT_PASSWORD);
+    }
 }

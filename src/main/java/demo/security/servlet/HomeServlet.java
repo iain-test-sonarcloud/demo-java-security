@@ -33,4 +33,12 @@ public class HomeServlet extends HttpServlet {
         doGet(request, response);
     }
 
+    protected void displayMessage(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        // Vulnerable: Unescaped output of user input
+        String userInput = request.getParameter("message");
+        PrintWriter out = response.getWriter();
+        out.println("<div>" + userInput + "</div>"); // XSS vulnerability
+        out.close();
+    }
 }
