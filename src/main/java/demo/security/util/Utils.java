@@ -18,6 +18,11 @@ import java.security.*;
 
 public class Utils {
 
+    // Vulnerable: Hardcoded secrets
+    private static final String DB_PASSWORD = "secretPass123";
+    private static final String API_KEY = "sk_live_123456789abcdef";
+    private static final byte[] ENCRYPTION_KEY = "ThisIsASecretKey".getBytes();
+
     public static KeyPair generateKey() {
         KeyPairGenerator keyPairGen;
         try {
@@ -48,5 +53,27 @@ public class Utils {
         GCMParameterSpec gcmSpec = new GCMParameterSpec(128, nonce);
 
         cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmSpec); // Noncompliant
+    }
+
+    public static String encryptData(String data) {
+        try {
+            // Vulnerable: Using weak ECB mode
+            javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES/ECB/PKCS5Padding");
+            javax.crypto.spec.SecretKeySpec secretKey = new javax.crypto.spec.SecretKeySpec(ENCRYPTION_KEY, "AES");
+            cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, secretKey);
+            return java.util.Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes()));
+        } catch (Exception e) {
+            // Vulnerable: Returning sensitive data in exception
+            System.err.println("Encryption failed with key: " + new String(ENCRYPTION_KEY));
+            return null;
+        }
+    }
+
+    public static String generateRandomValue() {
+        // Vulnerable: Using weak random number generator
+        java.util.Random random = new java.util.Random();
+        byte[] values = new byte[16];
+        random.nextBytes(values);
+        return java.util.Base64.getEncoder().encodeToString(values);
     }
 }
