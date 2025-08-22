@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - develop
+      - staging
       - feature/*
   pull_request:
     types: [opened, synchronize, reopened]
