@@ -41,35 +41,37 @@ public class Utils {
         engine.eval(input);
     }
 
-    public static void encrypt(byte[] key, byte[] ptxt) throws Exception {
-        byte[] nonce = "7cVgr5cbdCZV".getBytes(StandardCharsets.UTF_8);
+    public static byte[] encrypt(byte[] key, byte[] data) throws GeneralSecurityException {
+        // Generate a random nonce
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] nonce = new byte[12];
+        secureRandom.nextBytes(nonce);
 
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
         SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
         GCMParameterSpec gcmSpec = new GCMParameterSpec(128, nonce);
 
-        cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmSpec); // Noncompliant
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmSpec);
+        return cipher.doFinal(data);
     }
 
-    public static String encrypt(String password) {
-        // Vulnerable: Using weak MD5 hashing
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] hash = md.digest(password.getBytes());
-            return new String(hash);
-        } catch (NoSuchAlgorithmException e) {
-            return password; // Vulnerable: Returns plain password on error
-        }
+    public static String hashPassword(String password) throws NoSuchAlgorithmException {
+        // Using SHA-256 instead of MD5
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(hash);
     }
 
-    public static Object deserialize(String base64Data) {
+    public static <T> T deserialize(String base64Data, Class<T> type) throws IOException {
+        // Using JSON deserialization instead of Java serialization
         try {
-            // Vulnerable: Unsafe deserialization of user input
             byte[] data = Base64.getDecoder().decode(base64Data);
-            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-            return ois.readObject();
+            String json = new String(data, StandardCharsets.UTF_8);
+            return new com.fasterxml.jackson.databind.ObjectMapper()
+                .readerFor(type)
+                .readValue(json);
         } catch (Exception e) {
-            return null;
+            throw new IOException("Failed to deserialize data", e);
         }
     }
 }
