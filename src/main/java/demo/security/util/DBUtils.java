@@ -34,4 +34,11 @@ public class DBUtils {
         }
         return items;
     }
+
+    public void updateUserPassword(String username, String password) throws SQLException {
+        // Vulnerable: Direct string concatenation in SQL query
+        String query = "UPDATE users SET password = '" + password + "' WHERE username = '" + username + "'";
+        Statement stmt = connection.createStatement();
+        stmt.executeUpdate(query);
+    }
 }
