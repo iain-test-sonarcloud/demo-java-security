@@ -41,10 +41,12 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
               -Dsonar.projectKey=iainblack-sonar_Java-Web-App \
+              -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
               -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
               -Dsonar.pullrequest.branch=${{ github.head_ref }} \
               -Dsonar.pullrequest.base=${{ github.base_ref }}
           else
             mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-              -Dsonar.projectKey=iainblack-sonar_Java-Web-App
+              -Dsonar.projectKey=iainblack-sonar_Java-Web-App \
+              -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
           fi
