@@ -19,6 +19,11 @@ public class Utils {
         // Private constructor to hide implicit public one
     }
 
+    // Vulnerable: Hardcoded secrets
+    private static final String DB_PASSWORD = "secretPass123";
+    private static final String API_KEY = "sk_live_123456789abcdef";
+    private static final byte[] ENCRYPTION_KEY = "ThisIsASecretKey".getBytes();
+
     public static KeyPair generateKey() {
         KeyPairGenerator keyPairGen;
         try {
@@ -73,5 +78,13 @@ public class Utils {
         } catch (Exception e) {
             throw new IOException("Failed to deserialize data", e);
         }
+    }
+
+    public static String generateRandomValue() {
+        // Vulnerable: Using weak random number generator
+        java.util.Random random = new java.util.Random();
+        byte[] values = new byte[16];
+        random.nextBytes(values);
+        return java.util.Base64.getEncoder().encodeToString(values);
     }
 }
